@@ -22,8 +22,10 @@ spec = describe "room" $ do
     it "should keep a history of updates" $ do
         let h = history (apply 5 update initialRoom) 
         length h  `shouldBe` 5
-        h!!4 `shouldBe` 15.0
-        h!!3  `shouldBe` 14.0
+        fst (h!!4) `shouldBe` 15.0
+        snd (h!!4)  `shouldBe` 100
+        fst (h!!3)  `shouldBe` 14.0
+        snd (h!!3)  `shouldBe` 100
 
     it "should have its temperature decreasing differently after 5 updates" $ do
         temperature (apply 6 update initialRoom) `shouldBe` 9.333333333333334   
