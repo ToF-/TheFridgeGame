@@ -4,6 +4,15 @@ type Room = (Temperature, Position)
 type Temperature = Double
 type Position = Integer
 
+initialTemperature :: Temperature
+initialTemperature = 15.0
+
+initialPosition :: Position
+initialPosition = 100
+
+initialRoom :: Room
+initialRoom = (initialTemperature, initialPosition)
+
 room :: Temperature -> Position -> Room
 room t p = (t,p)
 

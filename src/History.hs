@@ -10,4 +10,5 @@ record :: Room -> History -> History
 record = (:)
 
 at :: History -> Int -> Room
-h `at` n = h !! ((negate n) - 1)
+h `at` n = let i = negate n - 1
+            in if i < length h then h!!i else initialRoom
