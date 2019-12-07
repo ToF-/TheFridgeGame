@@ -2,8 +2,9 @@
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE TypeFamilies      #-}
-import Yesod
+module FridgePage where
 
+import Yesod
 data Fridge = Fridge
 mkYesod "Fridge" [parseRoutes|
 / HomeR GET
@@ -19,7 +20,3 @@ getHomeR = defaultLayout $ do
 widgetGameName = do
     toWidget [hamlet| <h1>Fridge |]
     toWidget [lucius| h1 { color:blue; }|]
-            
-
-main :: IO ()
-main = warp 3000 Fridge

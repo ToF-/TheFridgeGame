@@ -21,12 +21,14 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- yesod
 
 library:
   source-dirs: src
 
 executables:
-  TheFridgeGame-exe:
+
+  TheFridgePage:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -35,6 +37,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - TheFridgeGame
+    - yesod
 
 tests:
   TheFridgeGame-test:

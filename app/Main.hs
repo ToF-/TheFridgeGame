@@ -1,6 +1,11 @@
-module Main where
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeFamilies      #-}
+import FridgePage
+import Yesod
 
-import Lib
+            
 
 main :: IO ()
-main = putStrLn "hello, world!"
+main = warp 3000 Fridge
