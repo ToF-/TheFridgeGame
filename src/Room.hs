@@ -22,3 +22,7 @@ temperature = fst
 position :: Room -> Position
 position = snd
 
+state :: Room -> (Temperature, Position)
+state r = (rounded (temperature r), position r)
+    where
+    rounded = (/ 10.0) . fromIntegral . round . (* 10) 
