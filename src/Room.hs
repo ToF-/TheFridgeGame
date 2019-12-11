@@ -1,6 +1,7 @@
 module Room where
 
 type Room = (Temperature, Position)
+type RoomState = (Temperature, Position) 
 type Temperature = Double
 type Position = Integer
 
@@ -22,7 +23,7 @@ temperature = fst
 position :: Room -> Position
 position = snd
 
-state :: Room -> (Temperature, Position)
+state :: Room -> RoomState 
 state r = (rounded (temperature r), position r)
     where
     rounded = (/ 10.0) . fromIntegral . round . (* 10) 

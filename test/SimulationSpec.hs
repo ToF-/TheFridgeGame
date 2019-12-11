@@ -6,10 +6,6 @@ import History
 import Simulation (currentRoom, newSimulation, setPosition, start, status, stop, Status (Idle,Running), update)
 
 spec = describe "simulation" $ do
-    let 
-        apply n f i = (iterate f i) !! n
-        rounded n = fromIntegral (round (n * 10)) / 10.0
-
     it "should initially be idle, not running" $ do
         fmap status newSimulation `shouldBe` Right Idle
 
