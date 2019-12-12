@@ -4,7 +4,7 @@ import Test.Hspec
 import Simulation
 import Room
 import Data.Function
-import Game (addPlayer, newGame, simulationFor, stateForPlayer, startAll, startForPlayer, stopAll, stopForPlayer, updateRunningSimulations)
+import Game (addPlayer, newGame, setPositionForPlayer, simulationFor, stateForPlayer, startAll, startForPlayer, stopAll, stopForPlayer, updateRunningSimulations)
 
 spec = describe "game" $ do
     it "should initially contain no simulations" $ do
@@ -21,6 +21,19 @@ spec = describe "game" $ do
         let g = addPlayer "ToF" newGame
         stateForPlayer "ToF" g `shouldBe` Right (15.0, 100)
         stateForPlayer "Gus" g `shouldBe` Left "NO EXISTING SIMULATION FOR: Gus"
+
+    it "should allow for changing position for a given player" $ do
+        let g = newGame & addPlayer "ToF" 
+                        & addPlayer "Ben" 
+                        & addPlayer "Gus"
+                        & startForPlayer "ToF"
+                        & startForPlayer "Ben"
+                        & setPositionForPlayer 42 "ToF"
+                        & setPositionForPlayer 58 "Gus"
+        stateForPlayer "ToF" g `shouldBe` Right (15.0, 42)
+        stateForPlayer "Ben" g `shouldBe` Right (15.0, 100)
+        stateForPlayer "Gus" g `shouldBe` Left "SIMULATION NOT RUNNING"
+        stateForPlayer "Foo" g `shouldBe` Left "NO EXISTING SIMULATION FOR: Foo"
 
     it "should allow for starting a simulation for a given player" $ do
         let g = addPlayer "ToF" newGame
@@ -61,3 +74,4 @@ spec = describe "game" $ do
         fmap status (simulationFor "ToF" g) `shouldBe` Right Idle
         fmap status (simulationFor "Gus" g) `shouldBe` Right Idle
         fmap status (simulationFor "Ben" g) `shouldBe` Right Idle 
+

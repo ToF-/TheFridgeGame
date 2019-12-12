@@ -18,6 +18,12 @@ simulationFor p g = case M.lookup p g of
 addPlayer :: PlayerId -> Game -> Game
 addPlayer p g = M.insert p newSimulation g
 
+setPositionForPlayer :: Position -> PlayerId -> Game -> Game
+setPositionForPlayer n p g = case simulationFor p g of
+                             Right st -> M.insert p (Right st >>= setPosition n) g
+                             _ -> g
+                            
+
 stateForPlayer :: PlayerId -> Game -> Either String RoomState
 stateForPlayer p g = fmap (state . currentRoom) (simulationFor p g)
 
