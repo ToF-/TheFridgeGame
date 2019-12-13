@@ -4,7 +4,7 @@ import Test.Hspec
 import Simulation
 import Room
 import Data.Function
-import Game (addPlayer, newGame, setPositionForPlayer, simulationFor, stateForPlayer, startAll, startForPlayer, stopAll, stopForPlayer, updateRunningSimulations)
+import Game (addPlayer, messageForPlayer, newGame, setPositionForPlayer, simulationFor, stateForPlayer, startAll, startForPlayer, stopAll, stopForPlayer, updateRunningSimulations)
 
 spec = describe "game" $ do
     it "should initially contain no simulations" $ do
@@ -22,6 +22,18 @@ spec = describe "game" $ do
         stateForPlayer "ToF" g `shouldBe` Right (15.0, 100)
         stateForPlayer "Gus" g `shouldBe` Left "NO EXISTING SIMULATION FOR: Gus"
 
+    it "should give a message for a player in case something went wrong" $ do
+        let g = newGame 
+              & addPlayer "ToF" 
+              & addPlayer "Ben"
+              & startForPlayer "ToF" 
+              & setPositionForPlayer 42 "ToF" 
+              & setPositionForPlayer 50 "Ben"
+        messageForPlayer "ToF" g `shouldBe` Nothing
+        messageForPlayer "Ben" g `shouldBe` Just "SIMULATION NOT RUNNING"
+        messageForPlayer "Dan" g `shouldBe` Just "NO EXISTING SIMULATION FOR: Dan"
+
+
     it "should allow for changing position for a given player" $ do
         let g = newGame & addPlayer "ToF" 
                         & addPlayer "Ben" 
@@ -32,7 +44,7 @@ spec = describe "game" $ do
                         & setPositionForPlayer 58 "Gus"
         stateForPlayer "ToF" g `shouldBe` Right (15.0, 42)
         stateForPlayer "Ben" g `shouldBe` Right (15.0, 100)
-        stateForPlayer "Gus" g `shouldBe` Left "SIMULATION NOT RUNNING"
+        messageForPlayer "Gus" g `shouldBe` Just "SIMULATION NOT RUNNING"
         stateForPlayer "Foo" g `shouldBe` Left "NO EXISTING SIMULATION FOR: Foo"
 
     it "should allow for starting a simulation for a given player" $ do
@@ -73,5 +85,4 @@ spec = describe "game" $ do
                         & stopAll
         fmap status (simulationFor "ToF" g) `shouldBe` Right Idle
         fmap status (simulationFor "Gus" g) `shouldBe` Right Idle
-        fmap status (simulationFor "Ben" g) `shouldBe` Right Idle 
-
+        fmap status (simulationFor "Ben" g) `shouldBe` Right Idle

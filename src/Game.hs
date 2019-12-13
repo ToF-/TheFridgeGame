@@ -4,44 +4,54 @@ import Simulation
 import Room
 import Data.Map as M
 
-type Game = Map PlayerId SimulationState
+type Game = Map PlayerId (Maybe Message, SimulationState)
 type PlayerId = String
+type Message = String
+type Operation = Simulation -> SimulationState
 
 newGame :: Game
 newGame = M.empty
 
 simulationFor :: PlayerId -> Game -> SimulationState
 simulationFor p g = case M.lookup p g of
-                      Just s -> s
+                      Just (m,s) -> s
                       Nothing -> Left ("NO EXISTING SIMULATION FOR: " ++ p)
 
 addPlayer :: PlayerId -> Game -> Game
-addPlayer p g = M.insert p newSimulation g
+addPlayer p g = M.insert p (Nothing, newSimulation) g
+
+
+operationForPlayer :: Operation -> PlayerId -> Game -> Game
+operationForPlayer o p g = let st = simulationFor p g in
+                               case st >>= o of
+                                 Left msg -> M.insert p (Just msg, st) g
+                                 st'      -> M.insert p (Nothing, st') g
 
 setPositionForPlayer :: Position -> PlayerId -> Game -> Game
-setPositionForPlayer n p g = case simulationFor p g of
-                             Right st -> M.insert p (Right st >>= setPosition n) g
-                             _ -> g
-                            
+setPositionForPlayer n = operationForPlayer (setPosition n)
+
+startForPlayer :: PlayerId -> Game -> Game
+startForPlayer = operationForPlayer start
+
+stopForPlayer :: PlayerId -> Game -> Game
+stopForPlayer = operationForPlayer stop
 
 stateForPlayer :: PlayerId -> Game -> Either String RoomState
 stateForPlayer p g = fmap (state . currentRoom) (simulationFor p g)
 
-startForPlayer :: PlayerId -> Game -> Game
-startForPlayer p g = case simulationFor p g of
-                       Right st -> M.insert p (Right st >>= start) g
-                       _ -> g
+doAll :: Operation -> Game -> Game
+doAll o = M.map (\(msg, st) -> (msg, st >>= o))
 
-stopForPlayer :: PlayerId -> Game -> Game
-stopForPlayer p g = case simulationFor p g of
-                      Right st -> M.insert p (Right st >>= stop) g
-                      _  -> g
-                       
 updateRunningSimulations :: Game -> Game
-updateRunningSimulations = M.map (>>= Simulation.update) 
+updateRunningSimulations = doAll Simulation.update
 
 startAll :: Game -> Game
-startAll = M.map (>>= start)
+startAll = doAll start
 
 stopAll :: Game -> Game
-stopAll = M.map (>>= stop)
+stopAll = doAll stop
+
+messageForPlayer :: PlayerId -> Game -> Maybe String
+messageForPlayer p g = case M.lookup p g of
+                         Just (msg, s) -> msg
+                         Nothing -> Just ("NO EXISTING SIMULATION FOR: " ++ p) 
