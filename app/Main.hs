@@ -1,11 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE TypeFamilies      #-}
-import FridgePage
-import Yesod
-
-            
+import Session
 
 main :: IO ()
-main = warp 3000 Fridge
+main = undefined
