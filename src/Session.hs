@@ -7,6 +7,7 @@ import Simulation
 data Command = Quit
              | List
              | Help
+             | Add PlayerId
              | State PlayerId
              | Pos PlayerId Position 
     deriving (Eq, Show, Read)
@@ -26,13 +27,20 @@ prompt out = out "Quit | List | Help | State \"id\" | Pos \"id\" n\n"
 entry :: Monad m => (m String) -> m (Maybe Command)
 entry imp = fmap command imp 
 
-sessionLoop :: Monad m => Game -> (m String) -> (String -> m ()) -> m ()
-sessionLoop g imp out = do
-    prompt out
-    cmd <- entry imp
-    case cmd of
-      Just Quit -> out "Bye"
-      Nothing -> do
-          out "???"
-          sessionLoop g imp out
+doCommand :: Game -> String -> (Game, [String])
+doCommand g s = case command s of
+                  Just Quit -> (g,["Bye"])
+                  Just (Add playerId) -> addNewPlayer playerId g
+                  Just (State playerId) -> playerState playerId g
+                  Nothing -> (g,["???"])
 
+addNewPlayer :: PlayerId -> Game -> (Game, [String])
+addNewPlayer playerId g = case stateForPlayer playerId g of
+                         Left _ -> (addPlayer playerId g, ["Player " ++ playerId ++ " added to the game."])
+                         Right _ -> (g, ["Player " ++ playerId ++ " is already in the game."])
+
+
+playerState :: PlayerId -> Game -> (Game, [String])
+playerState playerId g = case stateForPlayer playerId g of
+                           Right (t,p) -> (g, ["State for " ++ playerId ++ ": " ++ (show t) ++ " " ++ (show p)])
+                           Left _ -> (g, ["Player " ++ playerId ++ " is not in the game."])
