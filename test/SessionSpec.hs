@@ -4,6 +4,7 @@ import Test.Hspec
 import Control.Monad.Writer (writer, runWriter)
 import Session
 import Game
+import Data.Function
 
 spec = describe "session" $ do
     describe "command" $ do
@@ -15,6 +16,11 @@ spec = describe "session" $ do
             command "Add \"ToF\"" `shouldBe` Just (Add "tof")
             command "State \"ToF\"" `shouldBe` Just (State "tof")
             command "Pos \"ToF\" 42" `shouldBe` Just (Pos "tof" 42) 
+            command "Start \"ToF\"" `shouldBe` Just (Start "tof") 
+            command "Stop \"ToF\"" `shouldBe` Just (Stop "tof") 
+            command "Halt" `shouldBe` Just Halt
+            command "Go"   `shouldBe` Just Go
+
     describe "prompt" $ do
         it "should display a prompt" $ do
             let out = \s -> writer ((), s)
@@ -27,12 +33,13 @@ spec = describe "session" $ do
             cmd <- entry imp 
             cmd `shouldBe` Just (Pos "tof" 42) 
 
-    describe "doCommand" $ do
+    describe "doCommand" $ do 
         it "should execute a command on a game and yield a new game and messages" $ do
-            doCommand newGame "Quit" `shouldBe` (newGame, ["Bye"])
+           (doCommand newGame "Quit") `shouldBe` (newGame, ["Bye"])
+
 
         it "should notify if the command is not correct" $ do
-            doCommand newGame "foo" `shouldBe` (newGame, ["???"])
+                doCommand newGame "foo" `shouldBe` (newGame, ["???"])
 
         it "should add a player if not already added" $ do
             let (g',msg) = doCommand newGame "Add \"ToF\""
@@ -47,3 +54,10 @@ spec = describe "session" $ do
             let (g',msg) = doCommand newGame "State \"ToF\""
             msg  `shouldBe` ["Player tof is not in the game."]
             g' `shouldBe` newGame
+
+        -- it "should set a position for a player if that player has started" $ do
+        --     let g = newGame & addPlayer "ToF" & startForPlayer "ToF" 
+        --     let (g',msg) = doCommand g "Pos \"ToF\" 42"
+        --     msg `shouldBe` ["Player tof set position to 42."]
+
+

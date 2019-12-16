@@ -10,6 +10,10 @@ data Command = Quit
              | Add PlayerId
              | State PlayerId
              | Pos PlayerId Position 
+             | Go
+             | Halt
+             | Start PlayerId
+             | Stop PlayerId
     deriving (Eq, Show, Read)
 
 command :: String -> Maybe Command
@@ -32,6 +36,7 @@ doCommand g s = case command s of
                   Just Quit -> (g,["Bye"])
                   Just (Add playerId) -> addNewPlayer playerId g
                   Just (State playerId) -> playerState playerId g
+                  Just (Pos playerId n) -> playerSetPosition playerId n g
                   Nothing -> (g,["???"])
 
 addNewPlayer :: PlayerId -> Game -> (Game, [String])
@@ -44,3 +49,10 @@ playerState :: PlayerId -> Game -> (Game, [String])
 playerState playerId g = case stateForPlayer playerId g of
                            Right (t,p) -> (g, ["State for " ++ playerId ++ ": " ++ (show t) ++ " " ++ (show p)])
                            Left _ -> (g, ["Player " ++ playerId ++ " is not in the game."])
+
+playerSetPosition :: PlayerId -> Position -> Game -> (Game,[String])
+playerSetPosition playerId p g = let g' = setPositionForPlayer p playerId g
+    in case stateForPlayer playerId g' of
+         Right _ -> (g',["Player "++playerId++" set position to "++(show p)])
+         Left msg -> (g, [msg])
+                                   
