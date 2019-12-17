@@ -55,6 +55,15 @@ spec = describe "session" $ do
             msg  `shouldBe` ["Player tof is not in the game."]
             g' `shouldBe` newGame
 
+        it "should list all the simulations in the game" $ do
+            let (g',_) = doCommand newGame "Add \"ToF\""
+            let (g'',_)= doCommand g' "Add \"Ben\""
+            let (_,msg)= doCommand g'' "List"
+            msg  `shouldBe` ["tof: t=15.0 p=100 Idle"
+                            ,"ben: t=15.0 p=100 Idle"]
+                           
+
+
         -- it "should set a position for a player if that player has started" $ do
         --     let g = newGame & addPlayer "ToF" & startForPlayer "ToF" 
         --     let (g',msg) = doCommand g "Pos \"ToF\" 42"

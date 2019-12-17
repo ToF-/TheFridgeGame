@@ -34,10 +34,12 @@ entry imp = fmap command imp
 doCommand :: Game -> String -> (Game, [String])
 doCommand g s = case command s of
                   Just Quit -> (g,["Bye"])
+                  Just List -> (g,[])
                   Just (Add playerId) -> addNewPlayer playerId g
                   Just (State playerId) -> playerState playerId g
                   Just (Pos playerId n) -> playerSetPosition playerId n g
                   Nothing -> (g,["???"])
+
 
 addNewPlayer :: PlayerId -> Game -> (Game, [String])
 addNewPlayer playerId g = case stateForPlayer playerId g of
