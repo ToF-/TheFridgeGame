@@ -6,7 +6,12 @@ data Simulation = Simulation {
     currentRoom :: Room,
     history :: History,
     status :: Status }
-    deriving (Eq, Show)
+    deriving (Eq)
+
+instance Show Simulation where
+    show (Simulation room _ status) = show status 
+                                      ++ " Temp=" ++ show (temperature room)
+                                      ++ " Pos=" ++ show (position room)
 
 data Status = Idle | Running
     deriving (Eq, Show)

@@ -17,13 +17,20 @@ data Command = Quit
     deriving (Eq, Show, Read)
 
 command :: String -> Maybe Command
-command s = case reads (capitalize s) of
+command s = case reads (normalize s) of
               [(cmd,_)] -> Just cmd
               [] -> Nothing
 
-capitalize :: String -> String
-capitalize [] = []
-capitalize (c:s) = toUpper c : map toLower s
+normalize :: String -> String
+normalize = unwords . capitalizeFirst . words
+    where
+    capitalizeFirst :: [String] -> [String]
+    capitalizeFirst [] = []
+    capitalizeFirst (w:ws) = capitalize w : ws
+
+    capitalize :: String -> String
+    capitalize [] = []
+    capitalize (c:s) = toUpper c : map toLower s
 
 prompt :: Monad m => (String -> m ()) -> m () 
 prompt out = out "Quit | List | Help | State \"id\" | Pos \"id\" n\n"
@@ -33,8 +40,8 @@ entry imp = fmap command imp
 
 doCommand :: Game -> String -> (Game, [String])
 doCommand g s = case command s of
-                  Just Quit -> (g,["Bye"])
-                  Just List -> (g,[])
+                  Just Quit -> (g, ["Bye"])
+                  Just List -> (g, showAll g)
                   Just (Add playerId) -> addNewPlayer playerId g
                   Just (State playerId) -> playerState playerId g
                   Just (Pos playerId n) -> playerSetPosition playerId n g
@@ -57,4 +64,4 @@ playerSetPosition playerId p g = let g' = setPositionForPlayer p playerId g
     in case stateForPlayer playerId g' of
          Right _ -> (g',["Player "++playerId++" set position to "++(show p)])
          Left msg -> (g, [msg])
-                                   
+

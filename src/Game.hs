@@ -55,3 +55,10 @@ messageForPlayer :: PlayerId -> Game -> Maybe String
 messageForPlayer p g = case M.lookup p g of
                          Just (msg, s) -> msg
                          Nothing -> Just ("NO EXISTING SIMULATION FOR: " ++ p) 
+
+showAll :: Game -> [String]
+showAll = Prelude.map (uncurry showPlayerSimulation) . M.assocs
+    where
+    showPlayerSimulation :: PlayerId -> (Maybe Message, SimulationState) -> String
+    showPlayerSimulation playerId (_, Right simState) = playerId ++ ": " ++ show simState
+

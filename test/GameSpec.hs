@@ -4,7 +4,7 @@ import Test.Hspec
 import Simulation
 import Room
 import Data.Function
-import Game (addPlayer, messageForPlayer, newGame, setPositionForPlayer, simulationFor, stateForPlayer, startAll, startForPlayer, stopAll, stopForPlayer, updateRunningSimulations)
+import Game
 
 spec = describe "game" $ do
     it "should initially contain no simulations" $ do
@@ -86,3 +86,10 @@ spec = describe "game" $ do
         fmap status (simulationFor "ToF" g) `shouldBe` Right Idle
         fmap status (simulationFor "Gus" g) `shouldBe` Right Idle
         fmap status (simulationFor "Ben" g) `shouldBe` Right Idle
+    
+    it "should show all the simulations" $ do
+        let g = newGame & addPlayer "ToF" 
+                        & addPlayer "Ben" 
+                        & startAll
+                        & stopForPlayer "Ben"
+        showAll g `shouldBe` ["Ben: Idle Temp=15.0 Pos=100" ,"ToF: Running Temp=15.0 Pos=100"]

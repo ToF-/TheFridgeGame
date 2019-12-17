@@ -50,3 +50,7 @@ spec = describe "simulation" $ do
     it "should be stoppable" $ do
         let simulation = newSimulation >>= start >>= stop
         fmap status simulation `shouldBe` Right Idle
+
+    it "should show its current info" $ do
+        let simulation = newSimulation >>= start
+        fmap show simulation `shouldBe` Right "Running Temp=15.0 Pos=100" 
