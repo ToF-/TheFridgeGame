@@ -1,4 +1,5 @@
 import Session
+import Game
 
 main :: IO ()
-main = undefined
+main = gameLoop newGame getLine putStrLn

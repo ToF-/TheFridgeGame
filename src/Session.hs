@@ -16,6 +16,8 @@ data Command = Quit
              | Stop PlayerId
     deriving (Eq, Show, Read)
 
+type GameResult = (Game, [String])
+
 command :: String -> Maybe Command
 command s = case reads (normalize s) of
               [(cmd,_)] -> Just cmd
@@ -33,28 +35,35 @@ normalize = unwords . capitalizeFirst . words
     capitalize (c:s) = toUpper c : map toLower s
 
 prompt :: Monad m => (String -> m ()) -> m () 
-prompt out = out "Quit | List | Help | State \"id\" | Pos \"id\" n\n"
+prompt out = out "Quit | List | Go | Halt | Add \"id\" | Start \"id\" | Stop \"id\" | State \"id\" | Pos \"id\" n\n"
 
 entry :: Monad m => (m String) -> m (Maybe Command)
 entry imp = fmap command imp 
 
-doCommand :: Game -> (Maybe Command) -> (Game, [String])
+doCommand :: Game -> (Maybe Command) -> GameResult
 doCommand g cmd = case cmd of
                   Just Quit -> (g, ["Bye"])
                   Just List -> (g, showAll g)
                   Just (Add playerId) -> addNewPlayer playerId g
+                  Just (Start playerId) -> startPlayer playerId g
                   Just (State playerId) -> playerState playerId g
                   Just (Pos playerId n) -> playerSetPosition playerId n g
                   Nothing -> (g,["???"])
 
 
-addNewPlayer :: PlayerId -> Game -> (Game, [String])
+addNewPlayer :: PlayerId -> Game -> GameResult
 addNewPlayer playerId g = case stateForPlayer playerId g of
                          Left _ -> (addPlayer playerId g, ["Player " ++ playerId ++ " added to the game."])
                          Right _ -> (g, ["Player " ++ playerId ++ " is already in the game."])
 
 
-playerState :: PlayerId -> Game -> (Game, [String])
+startPlayer :: PlayerId -> Game -> GameResult
+startPlayer playerId g = let g' = startForPlayer playerId g in
+                             case stateForPlayer playerId g of
+                               Right _ -> (g',["Starting simulation for "++playerId])
+                               Left _ -> (g, ["Player " ++ playerId ++ " is not in the game."])
+
+playerState :: PlayerId -> Game -> GameResult
 playerState playerId g = case stateForPlayer playerId g of
                            Right (t,p) -> (g, ["State for " ++ playerId ++ ": " ++ (show t) ++ " " ++ (show p)])
                            Left _ -> (g, ["Player " ++ playerId ++ " is not in the game."])
@@ -65,3 +74,10 @@ playerSetPosition playerId p g = let g' = setPositionForPlayer p playerId g
          Right _ -> (g',["Player "++playerId++" set position to "++(show p)])
          Left msg -> (g, [msg])
 
+gameLoop :: Monad m => Game -> (m String) -> (String -> m ()) -> m ()
+gameLoop g inp out = do
+    prompt out
+    x <- entry inp    
+    let (g',msg) = doCommand g x
+    out (unlines msg)
+    if x == Just Quit then return () else gameLoop g' inp out

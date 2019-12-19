@@ -25,8 +25,7 @@ spec = describe "session" $ do
         it "should display a prompt" $ do
             let out = \s -> writer ((), s)
                 run = prompt out
-            (snd (runWriter run)) `shouldBe` "Quit | List | Help | State \"id\" | Pos \"id\" n\n"
-
+            (snd (runWriter run)) `shouldBe` "Quit | List | Go | Halt | Add \"id\" | Start \"id\" | Stop \"id\" | State \"id\" | Pos \"id\" n\n"
     describe "entry" $ do
         it "should read an entry and recognize a command" $ do
             let imp = return "Pos \"ToF\" 42\n"
@@ -62,9 +61,16 @@ spec = describe "session" $ do
             msg  `shouldBe` ["Ben: Idle Temp=15.0 Pos=100"
                             ,"ToF: Idle Temp=15.0 Pos=100"]
                            
+        it "should start the simulation for a player" $ do
+            let (g,_) = doCommand newGame $ Just $ Add "ToF" 
+            let (g',msg)= doCommand g $ Just $ Start "ToF"
+            msg `shouldBe` ["Starting simulation for ToF"]
+            let (_,msg)= doCommand g' $ Just List
+            msg  `shouldBe` ["ToF: Running Temp=15.0 Pos=100"]
 
 
-        -- it "should set a position for a player if that player has started" $ do
+            
+            -- it "should set a position for a player if that player has started" $ do
         --     let g = newGame & addPlayer "ToF" & startForPlayer "ToF" 
         --     let (g',msg) = doCommand g "Pos \"ToF\" 42"
         --     msg `shouldBe` ["Player tof set position to 42."]
