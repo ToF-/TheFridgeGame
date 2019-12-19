@@ -38,8 +38,8 @@ prompt out = out "Quit | List | Help | State \"id\" | Pos \"id\" n\n"
 entry :: Monad m => (m String) -> m (Maybe Command)
 entry imp = fmap command imp 
 
-doCommand :: Game -> String -> (Game, [String])
-doCommand g s = case command s of
+doCommand :: Game -> (Maybe Command) -> (Game, [String])
+doCommand g cmd = case cmd of
                   Just Quit -> (g, ["Bye"])
                   Just List -> (g, showAll g)
                   Just (Add playerId) -> addNewPlayer playerId g

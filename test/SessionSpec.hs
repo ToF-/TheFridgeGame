@@ -35,30 +35,30 @@ spec = describe "session" $ do
 
     describe "doCommand" $ do 
         it "should execute a command on a game and yield a new game and messages" $ do
-           (doCommand newGame "Quit") `shouldBe` (newGame, ["Bye"])
+            (doCommand newGame (Just Quit)) `shouldBe` (newGame, ["Bye"])
 
 
         it "should notify if the command is not correct" $ do
-                doCommand newGame "foo" `shouldBe` (newGame, ["???"])
+            doCommand newGame Nothing `shouldBe` (newGame, ["???"])
 
         it "should add a player if not already added" $ do
-            let (g',msg) = doCommand newGame "Add \"ToF\""
+            let (g',msg) = doCommand newGame $ Just $ Add "ToF"
             msg  `shouldBe` ["Player ToF added to the game."]
-            let (g'',msg) = doCommand g' "State \"ToF\""
+            let (g'',msg) = doCommand g' $ Just $ State "ToF"
             msg  `shouldBe` ["State for ToF: 15.0 100"]
-            let (g'',msg) = doCommand g' "Add \"ToF\""
+            let (g'',msg) = doCommand g' $ Just $ Add "ToF"
             msg  `shouldBe` ["Player ToF is already in the game."]
             g''  `shouldBe` g'
 
         it "should display an error if asked the state for a non player" $ do
-            let (g',msg) = doCommand newGame "State \"ToF\""
+            let (g',msg) = doCommand newGame $ Just $ State "ToF"
             msg  `shouldBe` ["Player ToF is not in the game."]
             g' `shouldBe` newGame
 
         it "should list all the simulations in the game" $ do
-            let (g',_) = doCommand newGame "Add \"ToF\""
-            let (g'',_)= doCommand g' "Add \"Ben\""
-            let (_,msg)= doCommand g'' "List"
+            let (g',_) = doCommand newGame $ Just $ Add "ToF"
+            let (g'',_)= doCommand g' $ Just $ Add "Ben"
+            let (_,msg)= doCommand g'' $ Just List
             msg  `shouldBe` ["Ben: Idle Temp=15.0 Pos=100"
                             ,"ToF: Idle Temp=15.0 Pos=100"]
                            
