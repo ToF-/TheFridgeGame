@@ -46,6 +46,9 @@ doCommand g cmd = case cmd of
                   Just List -> (g, showAll g)
                   Just (Add playerId) -> addNewPlayer playerId g
                   Just (Start playerId) -> startPlayer playerId g
+                  Just (Stop playerId) -> stopPlayer playerId g
+                  Just Go -> go g
+                  Just Halt -> halt g
                   Just (State playerId) -> playerState playerId g
                   Just (Pos playerId n) -> playerSetPosition playerId n g
                   Nothing -> (g,["???"])
@@ -61,6 +64,12 @@ startPlayer :: PlayerId -> Game -> GameResult
 startPlayer playerId g = let g' = startForPlayer playerId g in
                              case stateForPlayer playerId g of
                                Right _ -> (g',["Starting simulation for "++playerId])
+                               Left _ -> (g, ["Player " ++ playerId ++ " is not in the game."])
+
+stopPlayer :: PlayerId -> Game -> GameResult
+stopPlayer playerId g = let g' = stopForPlayer playerId g in
+                             case stateForPlayer playerId g of
+                               Right _ -> (g',["Stopping simulation for "++playerId])
                                Left _ -> (g, ["Player " ++ playerId ++ " is not in the game."])
 
 playerState :: PlayerId -> Game -> GameResult
@@ -81,3 +90,9 @@ gameLoop g inp out = do
     let (g',msg) = doCommand g x
     out (unlines msg)
     if x == Just Quit then return () else gameLoop g' inp out
+
+go :: Game -> GameResult 
+go g = (startAll g, [ "Starting all simulations" ])
+
+halt :: Game -> GameResult
+halt g = (stopAll g, ["Stopping all simulations"])

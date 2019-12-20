@@ -68,11 +68,39 @@ spec = describe "session" $ do
             let (_,msg)= doCommand g' $ Just List
             msg  `shouldBe` ["ToF: Running Temp=15.0 Pos=100"]
 
+        it "should stop the simulation for a player" $ do
+            let (g,_) = doCommand newGame $ Just $ Add "ToF" 
+            let (g',msg)= doCommand g $ Just $ Start "ToF"
+            let (g'',msg)= doCommand g' $ Just $ Stop "ToF"
+            msg `shouldBe` ["Stopping simulation for ToF"]
+            let (_,msg)= doCommand g'' $ Just List
+            msg  `shouldBe` ["ToF: Idle Temp=15.0 Pos=100"]
 
+        it "should start the simulation for all players" $ do
+            let (g',_) = doCommand newGame $ Just $ Add "ToF"
+            let (g'',_)= doCommand g' $ Just $ Add "Ben"
+            let (g''',msg)=doCommand g'' $ Just Go
+            msg `shouldBe` ["Starting all simulations"]
             
-            -- it "should set a position for a player if that player has started" $ do
-        --     let g = newGame & addPlayer "ToF" & startForPlayer "ToF" 
-        --     let (g',msg) = doCommand g "Pos \"ToF\" 42"
-        --     msg `shouldBe` ["Player tof set position to 42."]
+            let (_,msg)= doCommand g''' $ Just List
+            msg  `shouldBe` ["Ben: Running Temp=15.0 Pos=100"
+                            ,"ToF: Running Temp=15.0 Pos=100"]
+            
+            
+        it "should stop the simulation for all players" $ do
+            let (g',_) = doCommand newGame $ Just $ Add "ToF"
+            let (g'',_)= doCommand g' $ Just $ Add "Ben"
+            let (g''',_)=doCommand g'' $ Just Go
+            let (g'''',msg)=doCommand g''' $ Just Halt
+            msg `shouldBe` ["Stopping all simulations"]
+            
+            let (_,msg)= doCommand g'''' $ Just List
+            msg  `shouldBe` ["Ben: Idle Temp=15.0 Pos=100"
+                            ,"ToF: Idle Temp=15.0 Pos=100"]
+
+        it "should set a position for a player if that player has started" $ do
+            let g = newGame & addPlayer "ToF" & startForPlayer "ToF" 
+            let (g',msg) = doCommand g $ Just $ Pos "ToF" 42
+            msg `shouldBe` ["Player ToF set position to 42"]
 
 
