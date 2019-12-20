@@ -34,7 +34,9 @@ packages:
 # These entries can reference officially published versions as well as
 # forks / in-progress versions pinned to a git hash. For example:
 #
-# extra-deps:
+extra-deps:
+    - timers-0.2.0.3@sha256:ec91266e5ed73e958857fd07332ed547ea01205133769fba51cc40577549ffe9,1168
+    - suspend-0.2.0.0@sha256:0d98526558b773c3ff792664bc45d7a083a32eedb6206d4101a7570869c75a28,1115
 # - acme-missiles-0.3
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a

@@ -3,6 +3,7 @@ import Data.Char
 import Room
 import Game
 import Simulation
+import Control.Concurrent
 
 data Command = Quit
              | List
@@ -83,16 +84,32 @@ playerSetPosition playerId p g = let g' = setPositionForPlayer p playerId g
          Right _ -> (g',["Player "++playerId++" set position to "++(show p)])
          Left msg -> (g, [msg])
 
-gameLoop :: Monad m => Game -> (m String) -> (String -> m ()) -> m ()
-gameLoop g inp out = do
-    prompt out
-    x <- entry inp    
-    let (g',msg) = doCommand g x
-    out (unlines msg)
-    if x == Just Quit then return () else gameLoop g' inp out
-
 go :: Game -> GameResult 
 go g = (startAll g, [ "Starting all simulations" ])
 
 halt :: Game -> GameResult
 halt g = (stopAll g, ["Stopping all simulations"])
+
+pureGameLoop :: Monad m => Game -> (m String) -> (String -> m ()) -> m ()
+pureGameLoop g inp out = do
+    prompt out
+    x <- entry inp    
+    let (g',msg) = doCommand g x
+    out (unlines msg)
+    if x == Just Quit then return () else pureGameLoop g' inp out
+
+concurrentGameLoop :: MVar Game -> IO ()
+concurrentGameLoop mvar = do
+    g <- takeMVar mvar
+    prompt putStrLn
+    x <- entry getLine
+    let (g', msg) = doCommand g x
+    putStrLn (unlines msg)
+    putMVar mvar g'
+    if x == Just Quit then return () else concurrentGameLoop mvar 
+
+updateConcurrentGame :: MVar Game -> IO ()
+updateConcurrentGame mvar = do
+    g <- takeMVar mvar
+    let g' = updateRunningSimulations g
+    putMVar mvar g'

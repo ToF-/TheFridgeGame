@@ -24,6 +24,8 @@ dependencies:
 - yesod
 - containers
 - mtl
+- timers
+- suspend
 
 library:
   source-dirs: src
