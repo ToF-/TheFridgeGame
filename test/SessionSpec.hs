@@ -13,11 +13,11 @@ spec = describe "session" $ do
             command "Quit" `shouldBe` Just Quit
             command "List" `shouldBe` Just List
             command "Help" `shouldBe` Just Help
-            command "Add \"ToF\"" `shouldBe` Just (Add "ToF")
-            command "State \"ToF\"" `shouldBe` Just (State "ToF")
-            command "Pos \"ToF\" 42" `shouldBe` Just (Pos "ToF" 42) 
-            command "Start \"ToF\"" `shouldBe` Just (Start "ToF") 
-            command "Stop \"ToF\"" `shouldBe` Just (Stop "ToF") 
+            command "Add A" `shouldBe` Just (Add A)
+            command "State A" `shouldBe` Just (State A)
+            command "Pos A 42" `shouldBe` Just (Pos A 42) 
+            command "Start A" `shouldBe` Just (Start A) 
+            command "Stop A" `shouldBe` Just (Stop A) 
             command "Halt" `shouldBe` Just Halt
             command "Go"   `shouldBe` Just Go
 
@@ -28,9 +28,9 @@ spec = describe "session" $ do
             (snd (runWriter run)) `shouldBe` "Quit | List | Go | Halt | Add \"id\" | Start \"id\" | Stop \"id\" | State \"id\" | Pos \"id\" n\n"
     describe "entry" $ do
         it "should read an entry and recognize a command" $ do
-            let imp = return "Pos \"ToF\" 42\n"
+            let imp = return "Pos A 42\n"
             cmd <- entry imp 
-            cmd `shouldBe` Just (Pos "ToF" 42) 
+            cmd `shouldBe` Just (Pos A 42) 
 
     describe "doCommand" $ do 
         it "should execute a command on a game and yield a new game and messages" $ do
@@ -41,66 +41,66 @@ spec = describe "session" $ do
             doCommand newGame Nothing `shouldBe` (newGame, ["???"])
 
         it "should add a player if not already added" $ do
-            let (g',msg) = doCommand newGame $ Just $ Add "ToF"
-            msg  `shouldBe` ["Player ToF added to the game."]
-            let (g'',msg) = doCommand g' $ Just $ State "ToF"
-            msg  `shouldBe` ["State for ToF: 15.0 100"]
-            let (g'',msg) = doCommand g' $ Just $ Add "ToF"
-            msg  `shouldBe` ["Player ToF is already in the game."]
+            let (g',msg) = doCommand newGame $ Just $ Add A
+            msg  `shouldBe` ["Player A added to the game."]
+            let (g'',msg) = doCommand g' $ Just $ State A
+            msg  `shouldBe` ["State for A: 15.0 100"]
+            let (g'',msg) = doCommand g' $ Just $ Add A
+            msg  `shouldBe` ["Player A is already in the game."]
             g''  `shouldBe` g'
 
         it "should display an error if asked the state for a non player" $ do
-            let (g',msg) = doCommand newGame $ Just $ State "ToF"
-            msg  `shouldBe` ["Player ToF is not in the game."]
+            let (g',msg) = doCommand newGame $ Just $ State A
+            msg  `shouldBe` ["Player A is not in the game."]
             g' `shouldBe` newGame
 
         it "should list all the simulations in the game" $ do
-            let (g',_) = doCommand newGame $ Just $ Add "ToF"
-            let (g'',_)= doCommand g' $ Just $ Add "Ben"
+            let (g',_) = doCommand newGame $ Just $ Add A
+            let (g'',_)= doCommand g' $ Just $ Add B
             let (_,msg)= doCommand g'' $ Just List
-            msg  `shouldBe` ["Ben: Idle Temp=15.0 Pos=100"
-                            ,"ToF: Idle Temp=15.0 Pos=100"]
+            msg  `shouldBe` ["A: Idle Temp=15.0 Pos=100"
+                            ,"B: Idle Temp=15.0 Pos=100"]
                            
         it "should start the simulation for a player" $ do
-            let (g,_) = doCommand newGame $ Just $ Add "ToF" 
-            let (g',msg)= doCommand g $ Just $ Start "ToF"
-            msg `shouldBe` ["Starting simulation for ToF"]
+            let (g,_) = doCommand newGame $ Just $ Add A 
+            let (g',msg)= doCommand g $ Just $ Start A
+            msg `shouldBe` ["Starting simulation for A"]
             let (_,msg)= doCommand g' $ Just List
-            msg  `shouldBe` ["ToF: Running Temp=15.0 Pos=100"]
+            msg  `shouldBe` ["A: Running Temp=15.0 Pos=100"]
 
         it "should stop the simulation for a player" $ do
-            let (g,_) = doCommand newGame $ Just $ Add "ToF" 
-            let (g',msg)= doCommand g $ Just $ Start "ToF"
-            let (g'',msg)= doCommand g' $ Just $ Stop "ToF"
-            msg `shouldBe` ["Stopping simulation for ToF"]
+            let (g,_) = doCommand newGame $ Just $ Add A 
+            let (g',msg)= doCommand g $ Just $ Start A
+            let (g'',msg)= doCommand g' $ Just $ Stop A
+            msg `shouldBe` ["Stopping simulation for A"]
             let (_,msg)= doCommand g'' $ Just List
-            msg  `shouldBe` ["ToF: Idle Temp=15.0 Pos=100"]
+            msg  `shouldBe` ["A: Idle Temp=15.0 Pos=100"]
 
         it "should start the simulation for all players" $ do
-            let (g',_) = doCommand newGame $ Just $ Add "ToF"
-            let (g'',_)= doCommand g' $ Just $ Add "Ben"
+            let (g',_) = doCommand newGame $ Just $ Add A
+            let (g'',_)= doCommand g' $ Just $ Add B
             let (g''',msg)=doCommand g'' $ Just Go
             msg `shouldBe` ["Starting all simulations"]
             
             let (_,msg)= doCommand g''' $ Just List
-            msg  `shouldBe` ["Ben: Running Temp=15.0 Pos=100"
-                            ,"ToF: Running Temp=15.0 Pos=100"]
+            msg  `shouldBe` ["A: Running Temp=15.0 Pos=100"
+                            ,"B: Running Temp=15.0 Pos=100"]
             
             
         it "should stop the simulation for all players" $ do
-            let (g',_) = doCommand newGame $ Just $ Add "ToF"
-            let (g'',_)= doCommand g' $ Just $ Add "Ben"
+            let (g',_) = doCommand newGame $ Just $ Add A
+            let (g'',_)= doCommand g' $ Just $ Add B
             let (g''',_)=doCommand g'' $ Just Go
             let (g'''',msg)=doCommand g''' $ Just Halt
             msg `shouldBe` ["Stopping all simulations"]
             
             let (_,msg)= doCommand g'''' $ Just List
-            msg  `shouldBe` ["Ben: Idle Temp=15.0 Pos=100"
-                            ,"ToF: Idle Temp=15.0 Pos=100"]
+            msg  `shouldBe` ["A: Idle Temp=15.0 Pos=100"
+                            ,"B: Idle Temp=15.0 Pos=100"]
 
         it "should set a position for a player if that player has started" $ do
-            let g = newGame & addPlayer "ToF" & startForPlayer "ToF" 
-            let (g',msg) = doCommand g $ Just $ Pos "ToF" 42
-            msg `shouldBe` ["Player ToF set position to 42"]
+            let g = newGame & addPlayer A & startForPlayer A 
+            let (g',msg) = doCommand g $ Just $ Pos A 42
+            msg `shouldBe` ["Player A set position to 42"]
 
 

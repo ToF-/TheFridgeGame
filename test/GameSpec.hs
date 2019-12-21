@@ -9,87 +9,87 @@ import Game
 spec = describe "game" $ do
     it "should initially contain no simulations" $ do
         let g = newGame
-        simulationFor "ToF" newGame `shouldBe` Left "NO EXISTING SIMULATION FOR: ToF"
-        simulationFor "Gus" newGame `shouldBe` Left "NO EXISTING SIMULATION FOR: Gus"
+        simulationFor A newGame `shouldBe` Left "NO EXISTING SIMULATION FOR: A"
+        simulationFor C newGame `shouldBe` Left "NO EXISTING SIMULATION FOR: C"
 
     it "should contain a simulation for a player after adding this player" $ do
-        let g = addPlayer "ToF" newGame
-        fmap (state . currentRoom) (simulationFor "ToF" g) `shouldBe` Right (15.0, 100)
-        fmap (state . currentRoom) (simulationFor "Gus" g) `shouldBe` Left "NO EXISTING SIMULATION FOR: Gus"
+        let g = addPlayer A newGame
+        fmap (state . currentRoom) (simulationFor A g) `shouldBe` Right (15.0, 100)
+        fmap (state . currentRoom) (simulationFor C g) `shouldBe` Left "NO EXISTING SIMULATION FOR: C"
 
     it "should give state for a simulation for a given player" $ do
-        let g = addPlayer "ToF" newGame
-        stateForPlayer "ToF" g `shouldBe` Right (15.0, 100)
-        stateForPlayer "Gus" g `shouldBe` Left "NO EXISTING SIMULATION FOR: Gus"
+        let g = addPlayer A newGame
+        stateForPlayer A g `shouldBe` Right (15.0, 100)
+        stateForPlayer C g `shouldBe` Left "NO EXISTING SIMULATION FOR: C"
 
     it "should give a message for a player in case something went wrong" $ do
         let g = newGame 
-              & addPlayer "ToF" 
-              & addPlayer "Ben"
-              & startForPlayer "ToF" 
-              & setPositionForPlayer 42 "ToF" 
-              & setPositionForPlayer 50 "Ben"
-        messageForPlayer "ToF" g `shouldBe` Nothing
-        messageForPlayer "Ben" g `shouldBe` Just "SIMULATION NOT RUNNING"
-        messageForPlayer "Dan" g `shouldBe` Just "NO EXISTING SIMULATION FOR: Dan"
+              & addPlayer A 
+              & addPlayer B
+              & startForPlayer A 
+              & setPositionForPlayer 42 A 
+              & setPositionForPlayer 50 B
+        messageForPlayer A g `shouldBe` Nothing
+        messageForPlayer B g `shouldBe` Just "SIMULATION NOT RUNNING"
+        messageForPlayer E g `shouldBe` Just "NO EXISTING SIMULATION FOR: E"
 
 
     it "should allow for changing position for a given player" $ do
-        let g = newGame & addPlayer "ToF" 
-                        & addPlayer "Ben" 
-                        & addPlayer "Gus"
-                        & startForPlayer "ToF"
-                        & startForPlayer "Ben"
-                        & setPositionForPlayer 42 "ToF"
-                        & setPositionForPlayer 58 "Gus"
-        stateForPlayer "ToF" g `shouldBe` Right (15.0, 42)
-        stateForPlayer "Ben" g `shouldBe` Right (15.0, 100)
-        messageForPlayer "Gus" g `shouldBe` Just "SIMULATION NOT RUNNING"
-        stateForPlayer "Foo" g `shouldBe` Left "NO EXISTING SIMULATION FOR: Foo"
+        let g = newGame & addPlayer A 
+                        & addPlayer B 
+                        & addPlayer C
+                        & startForPlayer A
+                        & startForPlayer B
+                        & setPositionForPlayer 42 A
+                        & setPositionForPlayer 58 C
+        stateForPlayer A g `shouldBe` Right (15.0, 42)
+        stateForPlayer B g `shouldBe` Right (15.0, 100)
+        messageForPlayer C g `shouldBe` Just "SIMULATION NOT RUNNING"
+        stateForPlayer D g `shouldBe` Left "NO EXISTING SIMULATION FOR: D"
 
     it "should allow for starting a simulation for a given player" $ do
-        let g = addPlayer "ToF" newGame
-            g'= startForPlayer "ToF" g
-        fmap status (simulationFor "ToF" g') `shouldBe` Right Running
+        let g = addPlayer A newGame
+            g'= startForPlayer A g
+        fmap status (simulationFor A g') `shouldBe` Right Running
 
     it "should allow for stopping a simulation for a given player" $ do
-        let g = addPlayer "ToF" newGame
-            g'= stopForPlayer "ToF" (startForPlayer "ToF" g)
-        fmap status (simulationFor "ToF" g') `shouldBe` Right Idle
+        let g = addPlayer A newGame
+            g'= stopForPlayer A (startForPlayer A g)
+        fmap status (simulationFor A g') `shouldBe` Right Idle
 
     it "should update all simulations that are currently running" $ do
-        let g = newGame & addPlayer "ToF" 
-                        & addPlayer "Ben" 
-                        & addPlayer "Gus" 
-                        & startForPlayer "ToF"
-                        & startForPlayer "Gus"
+        let g = newGame & addPlayer A 
+                        & addPlayer B 
+                        & addPlayer C 
+                        & startForPlayer A
+                        & startForPlayer C
                         & updateRunningSimulations 
-        stateForPlayer "ToF" g `shouldBe` Right (14.0, 100)
-        stateForPlayer "Gus" g `shouldBe` Right (14.0, 100)
-        stateForPlayer "Ben" g `shouldBe` Right (15.0, 100)
+        stateForPlayer A g `shouldBe` Right (14.0, 100)
+        stateForPlayer C g `shouldBe` Right (14.0, 100)
+        stateForPlayer B g `shouldBe` Right (15.0, 100)
 
     it "should start all players" $ do
-        let g = newGame & addPlayer "ToF" 
-                        & addPlayer "Ben" 
-                        & addPlayer "Gus" 
+        let g = newGame & addPlayer A 
+                        & addPlayer B 
+                        & addPlayer C 
                         & startAll
-        fmap status (simulationFor "ToF" g) `shouldBe` Right Running
-        fmap status (simulationFor "Gus" g) `shouldBe` Right Running
-        fmap status (simulationFor "Ben" g) `shouldBe` Right Running
+        fmap status (simulationFor A g) `shouldBe` Right Running
+        fmap status (simulationFor C g) `shouldBe` Right Running
+        fmap status (simulationFor B g) `shouldBe` Right Running
 
     it "should stop all players" $ do
-        let g = newGame & addPlayer "ToF" 
-                        & addPlayer "Ben" 
-                        & addPlayer "Gus" 
+        let g = newGame & addPlayer A 
+                        & addPlayer B 
+                        & addPlayer C 
                         & startAll
                         & stopAll
-        fmap status (simulationFor "ToF" g) `shouldBe` Right Idle
-        fmap status (simulationFor "Gus" g) `shouldBe` Right Idle
-        fmap status (simulationFor "Ben" g) `shouldBe` Right Idle
+        fmap status (simulationFor A g) `shouldBe` Right Idle
+        fmap status (simulationFor C g) `shouldBe` Right Idle
+        fmap status (simulationFor B g) `shouldBe` Right Idle
     
     it "should show all the simulations" $ do
-        let g = newGame & addPlayer "ToF" 
-                        & addPlayer "Ben" 
+        let g = newGame & addPlayer A 
+                        & addPlayer B 
                         & startAll
-                        & stopForPlayer "Ben"
-        showAll g `shouldBe` ["Ben: Idle Temp=15.0 Pos=100" ,"ToF: Running Temp=15.0 Pos=100"]
+                        & stopForPlayer B
+        showAll g `shouldBe` ["A: Running Temp=15.0 Pos=100" ,"B: Idle Temp=15.0 Pos=100"]

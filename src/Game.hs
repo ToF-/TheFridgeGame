@@ -5,7 +5,8 @@ import Room
 import Data.Map as M
 
 type Game = Map PlayerId (Maybe Message, SimulationState)
-type PlayerId = String
+data PlayerId = A | B | C | D | E | F
+    deriving (Eq,Ord,Show,Read)
 type Message = String
 type Operation = Simulation -> SimulationState
 
@@ -15,7 +16,7 @@ newGame = M.empty
 simulationFor :: PlayerId -> Game -> SimulationState
 simulationFor p g = case M.lookup p g of
                       Just (m,s) -> s
-                      Nothing -> Left ("NO EXISTING SIMULATION FOR: " ++ p)
+                      Nothing -> Left ("NO EXISTING SIMULATION FOR: " ++ show p)
 
 addPlayer :: PlayerId -> Game -> Game
 addPlayer p g = M.insert p (Nothing, newSimulation) g
@@ -54,11 +55,11 @@ stopAll = doAll stop
 messageForPlayer :: PlayerId -> Game -> Maybe String
 messageForPlayer p g = case M.lookup p g of
                          Just (msg, s) -> msg
-                         Nothing -> Just ("NO EXISTING SIMULATION FOR: " ++ p) 
+                         Nothing -> Just ("NO EXISTING SIMULATION FOR: " ++ show p) 
 
 showAll :: Game -> [String]
 showAll = Prelude.map (uncurry showPlayerSimulation) . M.assocs
     where
     showPlayerSimulation :: PlayerId -> (Maybe Message, SimulationState) -> String
-    showPlayerSimulation playerId (_, Right simState) = playerId ++ ": " ++ show simState
+    showPlayerSimulation playerId (_, Right simState) = show playerId ++ ": " ++ show simState
 

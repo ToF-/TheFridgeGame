@@ -57,31 +57,31 @@ doCommand g cmd = case cmd of
 
 addNewPlayer :: PlayerId -> Game -> GameResult
 addNewPlayer playerId g = case stateForPlayer playerId g of
-                         Left _ -> (addPlayer playerId g, ["Player " ++ playerId ++ " added to the game."])
-                         Right _ -> (g, ["Player " ++ playerId ++ " is already in the game."])
+                         Left _ -> (addPlayer playerId g, ["Player " ++ show playerId ++ " added to the game."])
+                         Right _ -> (g, ["Player " ++ show playerId ++ " is already in the game."])
 
 
 startPlayer :: PlayerId -> Game -> GameResult
 startPlayer playerId g = let g' = startForPlayer playerId g in
                              case stateForPlayer playerId g of
-                               Right _ -> (g',["Starting simulation for "++playerId])
-                               Left _ -> (g, ["Player " ++ playerId ++ " is not in the game."])
+                               Right _ -> (g',["Starting simulation for "++ show playerId])
+                               Left _ -> (g, ["Player " ++ show playerId ++ " is not in the game."])
 
 stopPlayer :: PlayerId -> Game -> GameResult
 stopPlayer playerId g = let g' = stopForPlayer playerId g in
                              case stateForPlayer playerId g of
-                               Right _ -> (g',["Stopping simulation for "++playerId])
-                               Left _ -> (g, ["Player " ++ playerId ++ " is not in the game."])
+                               Right _ -> (g',["Stopping simulation for "++show playerId])
+                               Left _ -> (g, ["Player " ++ show playerId ++ " is not in the game."])
 
 playerState :: PlayerId -> Game -> GameResult
 playerState playerId g = case stateForPlayer playerId g of
-                           Right (t,p) -> (g, ["State for " ++ playerId ++ ": " ++ (show t) ++ " " ++ (show p)])
-                           Left _ -> (g, ["Player " ++ playerId ++ " is not in the game."])
+                           Right (t,p) -> (g, ["State for " ++ show playerId ++ ": " ++ (show t) ++ " " ++ (show p)])
+                           Left _ -> (g, ["Player " ++ show playerId ++ " is not in the game."])
 
 playerSetPosition :: PlayerId -> Position -> Game -> (Game,[String])
 playerSetPosition playerId p g = let g' = setPositionForPlayer p playerId g
     in case stateForPlayer playerId g' of
-         Right _ -> (g',["Player "++playerId++" set position to "++(show p)])
+         Right _ -> (g',["Player "++show playerId++" set position to "++(show p)])
          Left msg -> (g, [msg])
 
 go :: Game -> GameResult 
