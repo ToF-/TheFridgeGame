@@ -1,5 +1,6 @@
 module History where
 import Room
+import Data.List
 
 type History = [Room]
 
@@ -15,3 +16,9 @@ h `at` n = let i = negate n - 1
 
 report :: History -> [(Int, Temperature, Position)]
 report h = map (\(n,(t,p)) -> (n,t,p)) $ zip [0..] (reverse h)
+
+csvReport :: History -> [String]
+csvReport = ("Time;Temperature;Position" :) . map toCsv . report
+    where
+    toCsv (i, t, p) = show i ++ ";" ++ showFrenchCsv t ++ ";" ++ show p
+    showFrenchCsv t = let (n,d) = break (=='.') (show (rounded t)) in n ++ "," ++ tail d

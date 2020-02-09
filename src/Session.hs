@@ -3,6 +3,7 @@ import Data.Char
 import Room
 import Game
 import Simulation
+import History
 import Control.Concurrent
 
 data Command = Quit
@@ -15,6 +16,7 @@ data Command = Quit
              | End
              | Start PlayerId
              | Break PlayerId
+             | Save PlayerId
     deriving (Eq, Show, Read)
 
 type GameResult = (Game, [String])
@@ -41,6 +43,7 @@ keywords = words "Quit List Help Add Display Pos Run End Start Break"
 
 normalize :: String -> String
 normalize = unwords . capitalizeFirst . words
+
 capitalizeFirst :: [String] -> [String]
 capitalizeFirst [] = []
 capitalizeFirst (w:ws) = capitalize w : ws
@@ -93,6 +96,11 @@ playerDisplay playerId g = case stateForPlayer playerId g of
                            Right (t,p) -> (g, ["Display for " ++ show playerId ++ ": " ++ (show t) ++ " " ++ (show p)])
                            Left _ -> (g, ["Player " ++ show playerId ++ " is not in the game."])
 
+playerSave :: PlayerId -> Game -> GameResult
+playerSave playerId g = case stateForPlayer playerId g of
+                          Right (t,p) -> (g, ["Player " ++ show playerId ++ " simulation saved to " ++ show playerId ++ ".dat"]) 
+                          Left _ -> (g, ["Player " ++ show playerId ++ " is not in the game."])
+
 playerSetPosition :: PlayerId -> Position -> Game -> (Game,[String])
 playerSetPosition playerId p g = let g' = setPositionForPlayer p playerId g
     in case stateForPlayer playerId g' of
@@ -128,6 +136,17 @@ updateConcurrentGame mvar = do
     g <- takeMVar mvar
     let g' = updateRunningSimulations g
     putMVar mvar g'
+    save g'
+
+save :: Game -> IO () 
+save g = mapM_ (uncurry savePlayer) (reports g)
+
+savePlayer :: PlayerId -> History -> IO ()
+savePlayer playerId history = do
+    let fileName = (show playerId) ++ ".csv"
+        content  = unlines (csvReport history) 
+    writeFile fileName content
+    
 
 help :: [String]
 help = ["Help : display this message"

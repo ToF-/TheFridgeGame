@@ -54,3 +54,4 @@ spec = describe "simulation" $ do
     it "should show its current info" $ do
         let simulation = newSimulation >>= start
         fmap show simulation `shouldBe` Right "Running Temp=15.0 Pos=100" 
+

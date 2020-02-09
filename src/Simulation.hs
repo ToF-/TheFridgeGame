@@ -9,7 +9,7 @@ data Simulation = Simulation {
     deriving (Eq)
 
 instance Show Simulation where
-    show (Simulation room _ status) = show status 
+    show (Simulation room history status) = show status 
                                       ++ " Temp=" ++ show (temperature room)
                                       ++ " Pos=" ++ show (position room)
 
@@ -54,3 +54,4 @@ start s = Right $ s { status = Running }
 
 stop :: Simulation -> SimulationState
 stop s = Right $ s { status = Idle }
+

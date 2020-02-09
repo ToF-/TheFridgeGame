@@ -29,3 +29,11 @@ spec = describe "history" $ do
                             ,(1, 14.0,  40)
                             ,(2, 23.0,  42)]
 
+    it "should report in csv" $ do
+        let h = emptyHistory & record (room 15.33333 100)
+                             & record (room 14.236 40)
+                             & record (room 23.0 42)
+        csvReport h `shouldBe` ["Time;Temperature;Position"
+                               ,"0;15,3;100"
+                               ,"1;14,2;40"
+                               ,"2;23,0;42"]

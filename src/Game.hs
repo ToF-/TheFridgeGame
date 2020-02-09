@@ -1,6 +1,7 @@
 module Game where
 
 import Simulation
+import History
 import Room
 import Data.Map as M
 
@@ -63,3 +64,8 @@ showAll = Prelude.map (uncurry showPlayerSimulation) . M.assocs
     showPlayerSimulation :: PlayerId -> (Maybe Message, SimulationState) -> String
     showPlayerSimulation playerId (_, Right simState) = show playerId ++ ": " ++ show simState
 
+reports :: Game -> [(PlayerId, History)]
+reports g = Prelude.map (uncurry playerReport) (toList g)
+    where
+        playerReport playerId (Nothing,Right sim) = (playerId, history sim)
+    

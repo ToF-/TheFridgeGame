@@ -93,3 +93,10 @@ spec = describe "game" $ do
                         & startAll
                         & stopForPlayer B
         showAll g `shouldBe` ["A: Running Temp=15.0 Pos=100" ,"B: Idle Temp=15.0 Pos=100"]
+
+    it "should report all the simulations" $ do
+        let g = newGame & addPlayer A
+                        & addPlayer B
+                        & startAll
+                        & updateRunningSimulations 
+        reports g `shouldBe` [(A,[(15.0,100)]),(B,[(15.0,100)])]

@@ -25,5 +25,5 @@ position = snd
 
 state :: Room -> RoomState 
 state r = (rounded (temperature r), position r)
-    where
-    rounded = (/ 10.0) . fromIntegral . round . (* 10) 
+
+rounded = (/ 10.0) . fromIntegral . round . (* 10) 
