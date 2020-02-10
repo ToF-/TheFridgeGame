@@ -68,4 +68,5 @@ reports :: Game -> [(PlayerId, History)]
 reports g = Prelude.map (uncurry playerReport) (toList g)
     where
         playerReport playerId (Nothing,Right sim) = (playerId, history sim)
+        playerReport playerId (Just msg,Right sim) = (playerId, history sim)
     

@@ -5,6 +5,7 @@ import Game
 import Simulation
 import History
 import Control.Concurrent
+import Data.Map as M (toList)
 
 data Command = Quit
              | List
@@ -135,8 +136,21 @@ updateConcurrentGame :: MVar Game -> IO ()
 updateConcurrentGame mvar = do
     g <- takeMVar mvar
     let g' = updateRunningSimulations g
+    showGame g'
     putMVar mvar g'
     save g'
+
+showGame :: Game -> IO ()
+showGame g = mapM_ (uncurry showPlayerSimulation) (toList g)
+
+showPlayerSimulation :: PlayerId -> (Maybe Message,SimulationState) -> IO ()
+showPlayerSimulation playerId (_,simst) = do
+    case simst of
+      Left _ -> return ()
+      Right sim -> do 
+            let i = length (history sim)
+            putStrLn ("==========================")
+            putStrLn  $ show i) ++ ":" ++ show playerId ++ ":" ++ show sim
 
 save :: Game -> IO () 
 save g = mapM_ (uncurry savePlayer) (reports g)

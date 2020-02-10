@@ -123,6 +123,10 @@ spec = describe "session" $ do
             let (g',msg) = doCommand g $ Just $ Pos A 42
             msg `shouldBe` ["Player A set position to 42"]
 
+        it "should not set a position for a player if that player has not started" $ do
+            let g = newGame & addPlayer A 
+            let (g',msg) = doCommand g $ Just $ Pos A 42
+            msg `shouldBe` ["SIMULATION NOT RUNNING"]
 
 
 
